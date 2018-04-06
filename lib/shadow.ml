@@ -37,9 +37,9 @@ let ptr_char_to_string p =
   let b = Buffer.create 128 in
   let rec scan idx =
     if idx = 1024 then raise BrokenString;
-    match !@(p @+ idx) with
+    match !@(p +@ idx) with
     | '\x00' -> Buffer.contents b
-    | c -> Buffer.add_char b c
+    | c -> Buffer.add_char b c; scan (idx + 1)
   in scan 0
 
 let string_to_char_array s =
