@@ -16,6 +16,15 @@ val to_string : t -> string
 
 type db = t list
 
+type shadow_t
+
+val shadow_t : shadow_t Ctypes_static.structure Ctypes.typ
+
+val from_shadow_t : shadow_t Ctypes.structure -> t
+val to_shadow_t : name:char Ctypes.CArray.t -> passwd:char Ctypes.CArray.t -> t -> shadow_t Ctypes.structure
+
+val string_to_char_array : string -> char Ctypes.CArray.t
+
 val db_to_string : db -> string
 
 val getspnam : string -> t option
