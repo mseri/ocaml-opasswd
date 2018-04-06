@@ -17,11 +17,11 @@ type db = t list
 
 type shadow_t
 
-let shadow_t : shadow_t structure typ = structure "passwd"
+let shadow_t : shadow_t structure typ = structure "spwd"
 
-let sp_name     = field shadow_t "sp_name" (ptr char)
-let sp_passwd   = field shadow_t "sp_passwd" (ptr char)
-let sp_last_chg  = field shadow_t "sp_lastchg" long
+let sp_name     = field shadow_t "sp_namp" (ptr char)
+let sp_passwd   = field shadow_t "sp_pwdp" (ptr char)
+let sp_last_chg = field shadow_t "sp_lstchg" long
 let sp_min      = field shadow_t "sp_min" long
 let sp_max      = field shadow_t "sp_max" long
 let sp_warn     = field shadow_t "sp_warn" long
