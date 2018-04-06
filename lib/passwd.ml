@@ -58,15 +58,15 @@ let from_passwd_t_opt = function
   | None -> None
   | Some pw -> Some (from_passwd_t pw)
 
-let to_passwd_t pw =
+let to_passwd_t ~name ~passwd ~gecos ~dir ~shell pw =
   let pw_t : passwd_t structure = make passwd_t in
-  setf pw_t pw_name (pw.name |> string_to_char_array |> CArray.start);
-  setf pw_t pw_passwd (pw.passwd |> string_to_char_array |> CArray.start);
+  setf pw_t pw_name (CArray.start name);
+  setf pw_t pw_passwd (CArray. start passwd);
   setf pw_t pw_uid (Unsigned.UInt32.of_int pw.uid);
   setf pw_t pw_gid (Unsigned.UInt32.of_int pw.gid);
-  setf pw_t pw_gecos (pw.gecos |> string_to_char_array |> CArray.start);
-  setf pw_t pw_dir (pw.dir |> string_to_char_array |> CArray.start);
-  setf pw_t pw_shell (pw.shell |> string_to_char_array |> CArray.start);
+  setf pw_t pw_gecos (CArray.start gecos);
+  setf pw_t pw_dir (CArray.start dir);
+  setf pw_t pw_shell (CArray.start shell);
   pw_t
 
 let passwd_file = "/etc/passwd"
@@ -89,8 +89,13 @@ let endpwent = foreign ~check_errno:true "endpwent" (void @-> returning void)
 let putpwent' =
   foreign ~check_errno:true "putpwent" (ptr passwd_t @-> file_descr @-> returning int)
 let putpwent fd pw =
-  let passwd_ptr = addr (to_passwd_t pw) in
-  putpwent' passwd_ptr fd |> ignore
+  let name = pw.name |> string_to_char_array in
+  let passwd = pw.passwd |> string_to_char_array in
+  let gecos = pw.gecos |> string_to_char_array in
+  let dir = pw.dir |> string_to_char_array in
+  let shell = pw.shell |> string_to_char_array in
+  let passwd = to_passwd_t ~name ~passwd ~gecos ~dir ~shell pw in
+  putpwent' (addr passwd) fd |> ignore
 
 let get_db () =
   let rec loop acc =
