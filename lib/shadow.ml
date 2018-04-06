@@ -31,7 +31,16 @@ let sp_flag     = field shadow_t "sp_flag" ulong
 
 let () = seal shadow_t
 
-let ptr_char_to_string = coerce (ptr char) string
+exception BrokenString
+
+let ptr_char_to_string p =
+  let b = Buffer.create 128 in
+  let rec scan idx =
+    if idx = 1024 then raise BrokenString;
+    match !@(p @+ idx) with
+    | '\x00' -> Buffer.contents b
+    | c -> Buffer.add_char b c
+  in scan 0
 
 let string_to_char_array s =
   let len = String.length s in
