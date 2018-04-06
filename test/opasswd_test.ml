@@ -81,9 +81,10 @@ let test_gc () =
   let rec mkshadow n =
     let name = "myname" in
     let passwd = "mypasswd" in
-    let name' = name |> Shadow.string_to_char_array in
-    let passwd' = passwd |> Shadow.string_to_char_array in
-    let tmp = Shadow.(to_shadow_t ~name:name' ~passwd:passwd' {name; passwd; last_chg=0L; min=0L; max=0L; warn=0L; inact=0L; expire=0L; flag=0;}) in
+    let sp = Shadow.{name; passwd; last_chg=0L; min=0L; max=0L; warn=0L; inact=0L; expire=0L; flag=0;} in
+    let name' = sp.name |> Shadow.string_to_char_array in
+    let passwd' = sp.passwd |> Shadow.string_to_char_array in
+    let tmp = Shadow.(to_shadow_t ~name:name' ~passwd:passwd' sp) in
     if n=0
     then tmp
     else begin
