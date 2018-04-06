@@ -55,10 +55,10 @@ let from_shadow_t_opt = function
   | None -> None
   | Some sp -> Some (from_shadow_t sp)
 
-let to_shadow_t ~name_ptr ~passwd_ptr sp =
+let to_shadow_t ~name ~passwd sp =
   let sp_t : shadow_t structure = make shadow_t in
-  setf sp_t sp_name name_ptr;
-  setf sp_t sp_passwd passwd_ptr;
+  setf sp_t sp_name (CArray.start name);
+  setf sp_t sp_passwd (CArray.start passwd);
   setf sp_t sp_last_chg (Signed.Long.of_int64 sp.last_chg);
   setf sp_t sp_min (Signed.Long.of_int64 sp.min);
   setf sp_t sp_max (Signed.Long.of_int64 sp.max);
@@ -85,10 +85,10 @@ let putspent' =
   foreign ~check_errno:true
     "putspent" (ptr shadow_t @-> Passwd.file_descr @-> returning int)
 let putspent fd sp =
-  let name_ptr = sp.name |> string_to_char_array |> CArray.start in
-  let passwd_ptr = sp.passwd |> string_to_char_array |> CArray.start in
-  let shadow = to_shadow_t ~name_ptr ~passwd_ptr sp in
-  putspent' (addr shadow) fd |> ignore
+  let name = sp.name |> string_to_char_array in
+  let passwd = sp.passwd |> string_to_char_array in
+  let spwd = to_shadow_t ~name ~passwd sp in
+  putspent' (addr spwd) fd |> ignore
 
 let lckpwdf' = foreign "lckpwdf" (void @-> returning int)
 let lckpwdf () = lckpwdf' () = 0
